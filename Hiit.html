@@ -38,6 +38,16 @@
             -ms-overflow-style: none;
             scrollbar-width: none;
         }
+        /* AI loading 閃爍動畫 */
+        .ai-shimmer {
+            background: linear-gradient(90deg, #1e293b 0%, #334155 50%, #1e293b 100%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite linear;
+        }
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
     </style>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col selection:bg-brand-500 selection:text-white">
@@ -46,13 +56,18 @@
     <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur-md sticky top-0 z-40">
         <div class="max-w-4xl mx-auto px-4 py-3 flex justify-between items-center">
             <div class="flex items-center space-x-2">
-                <div class="bg-gradient-to-tr from-brand-500 to-rose-500 p-2 rounded-xl shadow-lg shadow-brand-500/20">
+                <div class="bg-gradient-to-tr from-brand-500 to-rose-500 p-2 rounded-xl shadow-lg shadow-brand-500/20 relative">
                     <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"/>
                     </svg>
+                    <!-- AI 亮點 -->
+                    <span class="absolute -top-1 -right-1 flex h-3 w-3">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-3 w-3 bg-purple-500"></span>
+                    </span>
                 </div>
                 <div>
-                    <h1 class="text-lg font-bold tracking-tight bg-gradient-to-r from-brand-400 to-rose-400 bg-clip-text text-transparent">HabitHIIT</h1>
+                    <h1 class="text-lg font-bold tracking-tight bg-gradient-to-r from-brand-400 to-rose-400 bg-clip-text text-transparent">HabitHIIT <span class="text-xs text-purple-400">AI+</span></h1>
                     <p class="text-xs text-slate-400">微步升級 · 無痛養成</p>
                 </div>
             </div>
@@ -60,7 +75,7 @@
             <!-- 個人簡歷小徽章 -->
             <div class="flex items-center space-x-2 bg-slate-800/80 px-3 py-1.5 rounded-full border border-slate-700 text-xs">
                 <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                <span class="text-slate-300 font-medium">178cm / 76kg / BMI 24.0</span>
+                <span class="text-slate-300 font-medium">178cm / 76kg</span>
             </div>
         </div>
     </header>
@@ -68,9 +83,8 @@
     <!-- 主內容區 -->
     <main class="flex-grow max-w-4xl w-full mx-auto px-4 py-6 pb-24">
         
-        <!-- Tab 頁面容器 -->
+        <!-- Tab 1: 首頁儀表板 -->
         <div id="tab-dashboard" class="space-y-6 tab-content">
-            <!-- 歡迎卡片與 BMI -->
             <section class="bg-gradient-to-br from-slate-900 to-slate-950 rounded-3xl p-6 border border-slate-800 relative overflow-hidden">
                 <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-brand-500/10 rounded-full blur-3xl"></div>
                 <div class="absolute -left-10 -top-10 w-40 h-40 bg-rose-500/10 rounded-full blur-3xl"></div>
@@ -79,10 +93,9 @@
                     <span class="bg-brand-500/20 text-brand-400 text-xs font-semibold px-2.5 py-1 rounded-md uppercase tracking-wider">專屬健身方案</span>
                     <h2 class="text-2xl font-bold mt-2">你好，強健的自己！</h2>
                     <p class="text-slate-400 text-sm mt-1 leading-relaxed">
-                       此計劃專為你客製化，從無痛建立習慣開始，每天增加一點強度，絕不爆盲。
+                        從無痛建立習慣開始，每天微增強度，絕不爆盲。
                     </p>
                     
-                    <!-- 數據看板 -->
                     <div class="grid grid-cols-3 gap-3 mt-6">
                         <div class="bg-slate-800/50 rounded-2xl p-4 border border-slate-700/50 flex flex-col items-center justify-center text-center">
                             <span class="text-xs text-slate-400">累計打卡</span>
@@ -97,7 +110,7 @@
                         <div class="bg-slate-800/50 rounded-2xl p-4 border border-slate-700/50 flex flex-col items-center justify-center text-center">
                             <span class="text-xs text-slate-400">體能段位</span>
                             <span class="text-sm font-bold mt-2 text-rose-400" id="stat-level">新手萌芽</span>
-                            <span class="text-[10px] text-slate-500">隨著打卡升級</span>
+                            <span class="text-[10px] text-slate-500">升級中</span>
                         </div>
                     </div>
                 </div>
@@ -117,530 +130,323 @@
                     </button>
                 </div>
             </section>
-
-            <!-- 四大階段一覽 -->
-            <section class="space-y-4">
-                <div class="flex justify-between items-center">
-                    <h3 class="font-bold text-lg">📈 階段性進度規劃</h3>
-                    <span class="text-xs text-brand-400 font-semibold cursor-pointer hover:underline" onclick="switchTab('program')">查看全部 16 天 &rarr;</span>
-                </div>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <!-- 階段 1 -->
-                    <div class="bg-slate-900/50 border border-slate-800/80 rounded-2xl p-4 flex items-start space-x-3 hover:border-slate-700 transition">
-                        <div class="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-400 shrink-0 mt-0.5">
-                            🌱
-                        </div>
-                        <div>
-                            <h4 class="font-bold text-sm text-slate-200">第一階段：習慣建立期 (Week 1)</h4>
-                            <p class="text-xs text-slate-400 mt-1">每次 8 分鐘。運動 20 秒，休息 40 秒。重點在於建立動起來的慣性，不痛苦！</p>
-                        </div>
-                    </div>
-                    <!-- 階段 2 -->
-                    <div class="bg-slate-900/50 border border-slate-800/80 rounded-2xl p-4 flex items-start space-x-3 hover:border-slate-700 transition">
-                        <div class="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-400 shrink-0 mt-0.5">
-                            ⚡
-                        </div>
-                        <div>
-                            <h4 class="font-bold text-sm text-slate-200">第二階段：能力提升期 (Week 2)</h4>
-                            <p class="text-xs text-slate-400 mt-1">每次 12 分鐘。運動 30 秒，休息 30 秒。縮短休息，加快動作速度，感受微喘快感。</p>
-                        </div>
-                    </div>
-                    <!-- 階段 3 -->
-                    <div class="bg-slate-900/50 border border-slate-800/80 rounded-2xl p-4 flex items-start space-x-3 hover:border-slate-700 transition">
-                        <div class="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-400 shrink-0 mt-0.5">
-                            🔥
-                        </div>
-                        <div>
-                            <h4 class="font-bold text-sm text-slate-200">第三階段：燃脂突破期 (Week 3)</h4>
-                            <p class="text-xs text-slate-400 mt-1">每次 12-15 分鐘。運動 40 秒，休息 20 秒。挑戰心肺上限，每天多做一下就是進步。</p>
-                        </div>
-                    </div>
-                    <!-- 階段 4 -->
-                    <div class="bg-slate-900/50 border border-slate-800/80 rounded-2xl p-4 flex items-start space-x-3 hover:border-slate-700 transition">
-                        <div class="w-10 h-10 rounded-xl bg-rose-500/10 flex items-center justify-center text-rose-400 shrink-0 mt-0.5">
-                            💀
-                        </div>
-                        <div>
-                            <h4 class="font-bold text-sm text-slate-200">第四階段：高級挑戰期 (Week 4)</h4>
-                            <p class="text-xs text-slate-400 mt-1">每次 10-15 分鐘。Tabata 終極模式（動 20s 休 10s）。加入波比跳與跳躍深蹲，全力燃燒。</p>
-                        </div>
-                    </div>
-                </div>
-            </section>
         </div>
 
-        <!-- Tab: 16天全計劃 -->
+        <!-- Tab 2: 16天全計劃 -->
         <div id="tab-program" class="space-y-6 hidden tab-content">
             <div class="flex justify-between items-center">
                 <div>
                     <h2 class="text-xl font-bold">28天 4週微步升級課表</h2>
-                    <p class="text-xs text-slate-400 mt-0.5">點選任何一天查看明細，並可立刻啟動該日計時器</p>
+                    <p class="text-xs text-slate-400 mt-0.5">點選任何一天即可啟動該日智能計時器</p>
                 </div>
-                <button onclick="resetProgress()" class="text-xs text-slate-500 hover:text-rose-400 border border-slate-800 hover:border-rose-900/30 px-3 py-1 rounded-full transition-all">
-                    重置所有進度
-                </button>
+                <button onclick="resetProgress()" class="text-xs text-slate-500 hover:text-rose-400 border border-slate-800 hover:border-rose-900/30 px-3 py-1 rounded-full transition-all">重置進度</button>
             </div>
-
-            <!-- 週次切換 -->
             <div class="flex space-x-2 border-b border-slate-800 pb-1 overflow-x-auto no-scrollbar">
-                <button onclick="filterWeek(1)" id="btn-week-1" class="week-filter-btn px-4 py-2 text-sm font-bold border-b-2 border-brand-500 text-brand-400 whitespace-nowrap">第一週 (輕鬆萌芽)</button>
-                <button onclick="filterWeek(2)" id="btn-week-2" class="week-filter-btn px-4 py-2 text-sm font-bold border-b-2 border-transparent text-slate-400 hover:text-slate-200 whitespace-nowrap">第二週 (逐步進階)</button>
-                <button onclick="filterWeek(3)" id="btn-week-3" class="week-filter-btn px-4 py-2 text-sm font-bold border-b-2 border-transparent text-slate-400 hover:text-slate-200 whitespace-nowrap">第三週 (高效燃脂)</button>
-                <button onclick="filterWeek(4)" id="btn-week-4" class="week-filter-btn px-4 py-2 text-sm font-bold border-b-2 border-transparent text-slate-400 hover:text-slate-200 whitespace-nowrap">第四週 (魔王挑戰)</button>
+                <button onclick="filterWeek(1)" id="btn-week-1" class="week-filter-btn px-4 py-2 text-sm font-bold border-b-2 border-brand-500 text-brand-400 whitespace-nowrap">第一週</button>
+                <button onclick="filterWeek(2)" id="btn-week-2" class="week-filter-btn px-4 py-2 text-sm font-bold border-b-2 border-transparent text-slate-400 hover:text-slate-200 whitespace-nowrap">第二週</button>
+                <button onclick="filterWeek(3)" id="btn-week-3" class="week-filter-btn px-4 py-2 text-sm font-bold border-b-2 border-transparent text-slate-400 hover:text-slate-200 whitespace-nowrap">第三週</button>
+                <button onclick="filterWeek(4)" id="btn-week-4" class="week-filter-btn px-4 py-2 text-sm font-bold border-b-2 border-transparent text-slate-400 hover:text-slate-200 whitespace-nowrap">第四週</button>
+            </div>
+            <div id="days-container" class="grid grid-cols-1 gap-4"></div>
+        </div>
+
+        <!-- Tab 3: 獨立自由計時網頁 (AI) -->
+        <div id="tab-custom" class="space-y-6 hidden tab-content">
+            <div>
+                <h2 class="text-xl font-bold text-white flex items-center">
+                    <svg class="w-6 h-6 mr-2 text-brand-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    自由計時與 AI 編排
+                </h2>
+                <p class="text-xs text-slate-400 mt-1">設定時間，你可以選擇純粹倒數，或是讓 AI 教練為你量身打造動作！</p>
             </div>
 
-            <!-- 天數卡片列表 -->
-            <div id="days-container" class="grid grid-cols-1 gap-4">
-                <!-- 動態注入天數內容 -->
+            <!-- 時間設定區塊 -->
+            <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 space-y-6">
+                <div>
+                    <label class="block text-sm font-bold text-emerald-400 mb-2">🔥 運動時間 (秒)</label>
+                    <input type="range" id="custom-work" min="10" max="60" value="30" class="w-full accent-emerald-500" oninput="document.getElementById('custom-work-val').innerText = this.value + ' 秒'">
+                    <div class="text-right text-sm font-bold text-slate-300 mt-1" id="custom-work-val">30 秒</div>
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-amber-400 mb-2">💧 休息時間 (秒)</label>
+                    <input type="range" id="custom-rest" min="5" max="60" value="15" class="w-full accent-amber-500" oninput="document.getElementById('custom-rest-val').innerText = this.value + ' 秒'">
+                    <div class="text-right text-sm font-bold text-slate-300 mt-1" id="custom-rest-val">15 秒</div>
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-brand-400 mb-2">🔁 總回合數</label>
+                    <input type="range" id="custom-rounds" min="1" max="20" value="4" class="w-full accent-brand-500" oninput="document.getElementById('custom-rounds-val').innerText = this.value + ' 回合'">
+                    <div class="text-right text-sm font-bold text-slate-300 mt-1" id="custom-rounds-val">4 回合</div>
+                </div>
+            </div>
+
+            <!-- AI 智能編排區塊 (Gemini) -->
+            <div class="bg-gradient-to-br from-slate-900 to-indigo-950 border border-indigo-500/30 rounded-3xl p-6 space-y-4 relative overflow-hidden">
+                <div class="absolute -right-10 -top-10 w-32 h-32 bg-purple-500/20 rounded-full blur-3xl"></div>
+                <label class="block text-sm font-bold text-purple-400">✨ 想練哪裡？(選填)</label>
+                <input type="text" id="ai-prompt-input" placeholder="例如：想加強核心、大腿很痠避開下肢..." class="w-full bg-slate-950/50 border border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all">
+                
+                <div class="grid grid-cols-2 gap-3 pt-2">
+                    <button onclick="startCustomWorkout(false)" class="w-full bg-slate-800 border border-slate-700 hover:bg-slate-700 text-slate-300 font-bold py-3.5 rounded-xl transition-all text-sm">
+                        一般啟動 (無動作)
+                    </button>
+                    <button onclick="generateAIWorkout()" id="btn-ai-generate" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-purple-500/20 active:scale-95 transition-all text-sm flex items-center justify-center space-x-1.5">
+                        <span id="ai-btn-icon">✨</span>
+                        <span id="ai-btn-text">AI 為我安排</span>
+                    </button>
+                </div>
             </div>
         </div>
 
-        <!-- Tab: 動作圖鑑 -->
+        <!-- Tab 4: 動作圖鑑 -->
         <div id="tab-guide" class="space-y-6 hidden tab-content">
             <div>
                 <h2 class="text-xl font-bold">無器材 HIIT 動作圖鑑</h2>
-                <p class="text-xs text-slate-400 mt-0.5">在家隨時可以練習，請確保姿勢正確，避免關節受傷</p>
+                <p class="text-xs text-slate-400 mt-0.5">在家隨時可以練習，附真實圖片與 YouTube 教學</p>
             </div>
 
-            <!-- 動作列表 -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="guides-container">
-                <!-- 動態注入動作指南 -->
+            <!-- ✨ 新增：AI 動作指導教練 -->
+            <div class="bg-gradient-to-br from-indigo-900 to-purple-950 border border-purple-500/30 rounded-3xl p-6">
+                <h3 class="text-lg font-bold text-white mb-2 flex items-center"><span class="mr-2">🤖</span> AI 動作指導教練</h3>
+                <p class="text-xs text-purple-200 mb-4">有任何動作上的疑問（例如：深蹲膝蓋痛怎麼辦？開合跳怕吵到樓下？），隨時問我！</p>
+                <div class="flex space-x-2">
+                    <input type="text" id="ai-qa-input" placeholder="問教練..." class="flex-grow bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-2 text-sm text-white focus:border-purple-500 outline-none transition-all">
+                    <button onclick="askAIFitnessCoach()" id="btn-ai-qa" class="bg-purple-600 hover:bg-purple-500 text-white px-5 py-2 rounded-xl text-sm font-bold transition-all whitespace-nowrap shadow-lg shadow-purple-500/20 active:scale-95">發問</button>
+                </div>
+                <div id="ai-qa-response" class="mt-4 hidden bg-slate-900/80 p-4 rounded-xl text-sm text-slate-200 border border-slate-700 leading-relaxed"></div>
             </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="guides-container"></div>
         </div>
 
     </main>
 
-    <!-- 沉浸式計時器覆蓋層 (Timer Overlay) -->
+    <!-- 獨立沉浸式計時器覆蓋層 (Timer Fullscreen) -->
     <div id="timer-overlay" class="fixed inset-0 bg-slate-950/98 z-50 flex flex-col justify-between hidden transition-all duration-300">
         <!-- 頂部資訊列 -->
         <div class="p-4 flex justify-between items-center border-b border-slate-800 bg-slate-900/40">
             <div class="flex items-center space-x-2">
-                <span class="bg-brand-500/20 text-brand-400 text-xs font-bold px-2.5 py-1 rounded-md" id="timer-week-day">第 1 週 · 第 1 天</span>
+                <span class="bg-brand-500/20 text-brand-400 text-xs font-bold px-2.5 py-1 rounded-md" id="timer-week-day">自由訓練</span>
                 <span class="text-xs text-slate-400" id="timer-round-info">回合: 1/2</span>
             </div>
-            <button onclick="quitWorkout()" class="text-slate-400 hover:text-rose-400 p-2 rounded-full transition-colors">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
-                </svg>
-            </button>
+            <div class="flex items-center space-x-3">
+                <button onclick="toggleVoice()" id="btn-voice" class="text-brand-400 hover:text-brand-300 p-2 rounded-full transition-colors flex items-center space-x-1" title="開關語音提示">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM14.657 2.929a1 1 0 011.414 0A9.972 9.972 0 0119 10a9.972 9.972 0 01-2.929 7.071 1 1 0 01-1.414-1.414A7.971 7.971 0 0017 10c0-2.21-.894-4.208-2.343-5.657a1 1 0 010-1.414zm-2.829 2.828a1 1 0 011.415 0A5.983 5.983 0 0115 10a5.984 5.984 0 01-1.757 4.243 1 1 0 01-1.415-1.415A3.984 3.984 0 0013 10a3.983 3.983 0 00-1.172-2.828 1 1 0 010-1.415z" clip-rule="evenodd"></path></svg>
+                </button>
+                <button onclick="quitWorkout()" class="text-slate-400 hover:text-rose-400 p-2 rounded-full transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
         </div>
 
         <!-- 計時器核心顯示區 -->
-        <div class="flex-grow flex flex-col items-center justify-center px-6 text-center space-y-8 relative">
+        <div class="flex-grow flex flex-col items-center justify-center px-6 text-center space-y-4 sm:space-y-8 relative">
             
-            <!-- 狀態標籤 (準備/運動/休息) -->
             <div class="relative">
-                <div id="timer-status-badge" class="px-6 py-2 rounded-full text-base font-black tracking-widest uppercase animate-pulse">
-                    準備中
-                </div>
+                <div id="timer-status-badge" class="px-6 py-2 rounded-full text-base font-black tracking-widest uppercase animate-pulse">準備中</div>
             </div>
 
             <!-- 超大倒數環與時間 -->
-            <div class="relative w-72 h-72 flex items-center justify-center">
-                <!-- 背景圓圈 -->
-                <svg class="absolute w-full h-full transform -rotate-90">
+            <div class="relative w-72 h-72 sm:w-80 sm:h-80 flex items-center justify-center my-2">
+                <svg class="absolute inset-0 w-full h-full transform -rotate-90" viewBox="0 0 288 288">
                     <circle cx="144" cy="144" r="130" stroke="#1e293b" stroke-width="12" fill="transparent" />
-                    <circle id="timer-progress-ring" cx="144" cy="144" r="130" stroke="#f97316" stroke-width="12" fill="transparent" stroke-dasharray="816.8" stroke-dashoffset="0" class="transition-all duration-100 ease-linear" />
+                    <circle id="timer-progress-ring" cx="144" cy="144" r="130" stroke="#f97316" stroke-width="12" fill="transparent" stroke-dasharray="816.8" stroke-dashoffset="0" class="transition-all duration-100 ease-linear" stroke-linecap="round" />
                 </svg>
-                
-                <!-- 秒數顯示 -->
-                <div class="flex flex-col items-center justify-center">
-                    <span id="timer-seconds" class="text-7xl font-extrabold tracking-tight tabular-nums">03</span>
-                    <span id="timer-total-left" class="text-xs text-slate-400 mt-1">總剩餘: 08:00</span>
+                <div class="flex flex-col items-center justify-center z-10">
+                    <span id="timer-seconds" class="text-[110px] sm:text-[130px] leading-none font-black text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.2)] tabular-nums">03</span>
+                    <span id="timer-total-left" class="text-xs sm:text-sm font-bold text-slate-300 mt-2 bg-slate-900/80 px-3 py-1 rounded-full border border-slate-700/50 backdrop-blur-sm">總剩餘: 00:00</span>
                 </div>
             </div>
 
-            <!-- 當前動作 / 下一動作 -->
+            <!-- 動作顯示與超大視覺提示 -->
             <div class="space-y-2 max-w-md w-full">
-                <p class="text-xs text-brand-400 uppercase tracking-widest font-bold">當前動作</p>
-                <div class="flex items-center justify-center space-x-2">
-                    <h3 id="timer-exercise-name" class="text-3xl font-black text-white">開合跳</h3>
-                    <a id="timer-yt-link" href="#" target="_blank" rel="noopener noreferrer" onclick="pauseForVideo()" class="text-rose-500 hover:text-rose-400 p-1.5 bg-rose-500/10 hover:bg-rose-500/20 rounded-full transition-all flex items-center justify-center hidden animate-bounce" title="在 YouTube 觀看教學影片（運動將自動暫停）">
-                        <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
-                            <path d="M23.498 6.163a3.003 3.003 0 0 0-2.11-2.11C19.518 3.545 12 3.545 12 3.545s-7.518 0-9.388.508a3.003 3.003 0 0 0-2.11 2.11C0 8.033 0 12 0 12s0 3.967.502 5.837a3.003 3.003 0 0 0 2.11 2.11c1.87.508 9.388.508 9.388.508s7.518 0 9.388-.508a3.003 3.003 0 0 0 2.11-2.11C24 15.967 24 12 24 12s0-3.967-.502-5.837zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
-                        </svg>
+                <!-- 帶圖片的動作標題區塊 -->
+                <div class="flex items-center justify-center space-x-3">
+                    <div id="timer-img-container" class="w-14 h-14 rounded-full border-2 border-brand-500 bg-slate-800 overflow-hidden shrink-0 hidden shadow-lg shadow-brand-500/20">
+                        <img id="timer-exercise-img" src="" class="w-full h-full object-cover" onerror="this.classList.add('hidden'); this.nextElementSibling.classList.replace('hidden', 'flex');">
+                        <span id="timer-exercise-emoji" class="w-full h-full hidden items-center justify-center text-2xl">🤸</span>
+                    </div>
+
+                    <h3 id="timer-exercise-name" class="text-4xl font-black text-white">開合跳</h3>
+                    
+                    <a id="timer-yt-link" href="#" target="_blank" onclick="pauseForVideo()" class="text-rose-500 hover:text-rose-400 p-1.5 bg-rose-500/10 hover:bg-rose-500/20 rounded-full transition-all hidden animate-bounce" title="看教學">
+                        <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M23.498 6.163a3.003 3.003 0 0 0-2.11-2.11C19.518 3.545 12 3.545 12 3.545s-7.518 0-9.388.508a3.003 3.003 0 0 0-2.11 2.11C0 8.033 0 12 0 12s0 3.967.502 5.837a3.003 3.003 0 0 0 2.11 2.11c1.87.508 9.388.508 9.388.508s7.518 0 9.388-.508a3.003 3.003 0 0 0 2.11-2.11C24 15.967 24 12 24 12s0-3.967-.502-5.837zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
                     </a>
                 </div>
-                <p id="timer-exercise-desc" class="text-sm text-slate-400 px-4 min-h-[40px]">雙腳跳開雙手高舉拍手，落地膝蓋保持微彎緩衝。</p>
                 
-                <!-- 下一動作提示 -->
-                <div class="bg-slate-900/60 rounded-xl p-3 border border-slate-800/80 flex justify-between items-center mt-4">
-                    <span class="text-xs text-slate-500">下一動作預覽</span>
-                    <span id="timer-next-exercise" class="text-sm font-bold text-brand-300">深蹲</span>
+                <div id="timer-exercise-desc" class="text-sm text-slate-400 px-4 min-h-[50px] mt-2 flex flex-col items-center justify-center">
+                    <!-- 內容由 JS 動態塞入 -->
                 </div>
             </div>
         </div>
 
-        <!-- 底部控制按鈕 -->
         <div class="p-6 border-t border-slate-800 bg-slate-900/40 flex justify-center space-x-4">
             <button id="btn-timer-pause" onclick="togglePause()" class="w-14 h-14 rounded-full bg-slate-800 border border-slate-700 text-slate-300 flex items-center justify-center hover:bg-slate-700 active:scale-95 transition-all">
-                <!-- 暫停 / 播放 SVG -->
                 <svg id="svg-pause" class="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
                 <svg id="svg-resume" class="w-6 h-6 fill-current hidden" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
             </button>
             <button onclick="skipInterval()" class="w-14 h-14 rounded-full bg-slate-800 border border-slate-700 text-slate-300 flex items-center justify-center hover:bg-slate-700 active:scale-95 transition-all">
-                <!-- 跳過 SVG -->
                 <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
             </button>
         </div>
     </div>
 
-    <!-- 訓練完成賀喜彈出層 -->
+    <!-- 訓練完成賀喜彈出層 (包含 AI 專屬結語) -->
     <div id="completion-modal" class="fixed inset-0 bg-slate-950/95 z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-gradient-to-b from-slate-900 to-slate-950 border border-slate-800 rounded-3xl p-8 max-w-md w-full text-center relative overflow-hidden">
-            <div class="absolute -right-20 -top-20 w-40 h-40 bg-emerald-500/10 rounded-full blur-3xl"></div>
+            <div class="absolute -right-20 -top-20 w-40 h-40 bg-purple-500/10 rounded-full blur-3xl"></div>
             
             <span class="text-5xl">🏆</span>
-            <h2 class="text-2xl font-black text-white mt-4">完成了！大功告成！</h2>
-            <p class="text-sm text-slate-400 mt-2" id="completion-text">你已經成功完成了今日的 HIIT 漸進練習，為你奠定了更健康的明天。</p>
-            
-            <!-- 打卡資訊 -->
-            <div class="bg-slate-800/50 border border-slate-700/50 rounded-2xl p-4 my-6 grid grid-cols-2 gap-4">
-                <div>
-                    <span class="text-xs text-slate-500 block">今日運動時長</span>
-                    <span class="text-xl font-bold text-emerald-400" id="completed-duration">8:00</span>
+            <h2 class="text-2xl font-black text-white mt-4">大功告成！</h2>
+            <p class="text-sm text-slate-400 mt-1 mb-4" id="completion-text">你已成功完成訓練。</p>
+
+            <!-- AI 專屬教練留言 -->
+            <div class="bg-slate-900 border border-purple-500/30 rounded-2xl p-4 relative overflow-hidden">
+                <div class="flex items-center space-x-2 mb-2 justify-center">
+                    <span class="text-xs font-bold text-purple-400 bg-purple-500/10 px-2 py-0.5 rounded">✨ AI 教練專屬留言</span>
                 </div>
-                <div>
-                    <span class="text-xs text-slate-500 block">強度微增幅</span>
-                    <span class="text-xl font-bold text-brand-400" id="completed-progression">+1.2%</span>
-                </div>
+                <p id="ai-cheer-message" class="text-sm text-slate-200 italic leading-relaxed ai-shimmer rounded-lg min-h-[40px] text-transparent">
+                    正在為你生成專屬熱血鼓勵...
+                </p>
             </div>
 
-            <button onclick="closeCompletionModal()" class="w-full bg-gradient-to-r from-brand-500 to-rose-500 hover:from-brand-600 hover:to-rose-600 text-white font-bold py-3.5 rounded-2xl shadow-lg shadow-brand-500/20 active:scale-[0.98] transition-all">
-                確認打卡，領取成就
+            <button onclick="closeCompletionModal()" class="mt-6 w-full bg-gradient-to-r from-brand-500 to-rose-500 hover:from-brand-600 hover:to-rose-600 text-white font-bold py-3.5 rounded-2xl shadow-lg transition-all">
+                確認打卡，休息去
             </button>
         </div>
     </div>
 
-    <!-- 底部固定導航 (Mobile Friendly) -->
-    <nav class="fixed bottom-0 left-0 right-0 border-t border-slate-800 bg-slate-900/90 backdrop-blur-md py-2 z-40">
-        <div class="max-w-md mx-auto flex justify-around">
-            <button onclick="switchTab('dashboard')" id="nav-dashboard" class="flex flex-col items-center space-y-1 text-brand-500 py-1 px-3">
-                <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
-                    <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
-                </svg>
-                <span class="text-[10px] font-bold">首頁儀表板</span>
+    <!-- 底部固定導航 -->
+    <nav class="fixed bottom-0 left-0 right-0 border-t border-slate-800 bg-slate-900/95 backdrop-blur-md pb-safe z-40">
+        <div class="max-w-md mx-auto grid grid-cols-4 gap-1 px-2 py-2">
+            <button onclick="switchTab('dashboard')" id="nav-dashboard" class="flex flex-col items-center space-y-1 text-brand-500 py-1">
+                <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                <span class="text-[10px] font-bold">首頁</span>
             </button>
-            <button onclick="switchTab('program')" id="nav-program" class="flex flex-col items-center space-y-1 text-slate-500 py-1 px-3">
-                <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
-                    <path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2z"/>
-                </svg>
-                <span class="text-[10px] font-bold">16天方案</span>
+            <button onclick="switchTab('program')" id="nav-program" class="flex flex-col items-center space-y-1 text-slate-500 py-1">
+                <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2z"/></svg>
+                <span class="text-[10px] font-bold">16天課表</span>
             </button>
-            <button onclick="switchTab('guide')" id="nav-guide" class="flex flex-col items-center space-y-1 text-slate-500 py-1 px-3">
-                <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
-                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
-                </svg>
-                <span class="text-[10px] font-bold">動作圖鑑</span>
+            <button onclick="switchTab('custom')" id="nav-custom" class="flex flex-col items-center space-y-1 text-slate-500 py-1 relative">
+                <span class="absolute top-0 right-3 flex h-2 w-2 rounded-full bg-purple-500 animate-pulse"></span>
+                <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
+                <span class="text-[10px] font-bold">自由+AI</span>
+            </button>
+            <button onclick="switchTab('guide')" id="nav-guide" class="flex flex-col items-center space-y-1 text-slate-500 py-1">
+                <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+                <span class="text-[10px] font-bold">動作教學</span>
             </button>
         </div>
     </nav>
 
     <!-- 腳本邏輯 -->
     <script>
-        // 動作定義資料庫
-        const EXERCISES_DB = {
-            jumping_jacks: {
-                id: 'jumping_jacks',
-                name: '開合跳 (Jumping Jacks)',
-                desc: '雙腳跳開時雙手高舉頭頂拍手，落地時保持膝關節微彎，吸收衝擊力。可高效激活全身。',
-                tip: '落地要輕盈無聲，核心保持收緊。',
-                muscles: '全身、臀部、大腿、肩膀'
-            },
-            squats: {
-                id: 'squats',
-                name: '徒手深蹲 (Bodyweight Squats)',
-                desc: '雙腳與肩同寬，想像背後有一張椅子。重心放在腳跟，臀部向後向下，膝蓋與腳尖方向一致。',
-                tip: '下蹲時吸氣，站起時吐氣。膝蓋不內夾。',
-                muscles: '股四頭肌、臀大肌、膕繩肌'
-            },
-            knee_drives: {
-                id: 'knee_drives',
-                name: '站立膝擊 (Standing Knee Drives)',
-                desc: '雙手高舉至頭頂，雙腳交替快速將膝蓋拉向胸前，同時雙手用力向下拉動，模仿膝擊動作。',
-                tip: '用力收縮腹肌來拉高膝蓋。',
-                muscles: '腹直肌、髂腰肌、肩膀'
-            },
-            plank: {
-                id: 'plank',
-                name: '跪姿或標準棒式 (Plank)',
-                desc: '手肘撐地與肩同寬，雙腳向後踩地或膝蓋著地，收緊臀部與核心，身體從頭到腳呈一直線。',
-                tip: '不要塌腰也不要聳肩，保持均勻呼吸。',
-                muscles: '核心肌群、腹橫肌、前鋸肌'
-            },
-            fast_feet: {
-                id: 'fast_feet',
-                name: '敏捷快速踏步 (Fast Feet)',
-                desc: '雙腳微寬站立，重心微向前。原地快速交替小碎步，腳掌著地，速度越快越好。',
-                tip: '想像腳踩在滾燙的鐵板上，動作敏捷。',
-                muscles: '小腿肌群、敏捷度、大腿'
-            },
-            squat_calf_raise: {
-                id: 'squat_calf_raise',
-                name: '深蹲靜止+墊腳 (Squat to Calf Raise)',
-                desc: '深蹲至大腿與地面平行後稍作停頓，站立時順勢利用小腿力量將腳尖墊起，挑戰平衡。',
-                tip: '墊腳時，核心要極度穩定，維持1秒。',
-                muscles: '小腿、股四頭肌、核心平衡'
-            },
-            shadow_boxing: {
-                id: 'shadow_boxing',
-                name: '拳擊直拳 (Shadow Boxing)',
-                desc: '雙腳前後微站，保持戰鬥防守姿勢。雙手交替快速揮出直拳。轉腰帶動拳頭，感受背部發力。',
-                tip: '出拳時吐氣，收拳要快。',
-                muscles: '肩膀、背部、腹外斜肌'
-            },
-            skater_hops: {
-                id: 'skater_hops',
-                name: '溜冰者左右跳 (Skater Hops)',
-                desc: '向右側跳，左腳落在右腳後側；再向左側跳，右腳落在左腳後側。雙手自然隨側擺動平衡。',
-                tip: '訓練側向爆發力，著地膝蓋微彎緩衝。',
-                muscles: '臀中肌、大腿外側、平衡力'
-            },
-            reverse_lunges: {
-                id: 'reverse_lunges',
-                name: '弓步蹲交替 (Reverse Lunges)',
-                desc: '一腳向後大跨步並下蹲，直到前後膝蓋皆呈接近 90 度，上身保持直立，再推地回到原位。',
-                tip: '前腳膝蓋不超過腳尖，重心放在髖關節。',
-                muscles: '臀肌、股四頭肌、大腿後側'
-            },
-            high_knees: {
-                id: 'high_knees',
-                name: '高抬腿 (High Knees)',
-                desc: '原地快速交替跑步，大腿盡量抬高至與地面平行，雙臂配合用力前後擺動。',
-                tip: '如果一開始跳躍太難，可以先做無跳躍的快速提膝。',
-                muscles: '髖屈肌、腹肌、心肺機能'
-            },
-            mountain_climbers: {
-                id: 'mountain_climbers',
-                name: '登山者 (Mountain Climbers)',
-                desc: '雙手直臂撐地成伏地挺身姿，重心在肩部下方。雙腳交替快速朝胸部方向收膝，像是陡峭奔跑。',
-                tip: '屁股不要抬得太高，保持核心像鐵板一樣。',
-                muscles: '核心、腹直肌、肩膀、心肺'
-            },
-            burpees: {
-                id: 'burpees',
-                name: '波比跳 (Burpees)',
-                desc: '下蹲雙手撐地，雙腳後跳成伏地挺身姿，再收回雙腳，最後向上躍起拍手。HIIT 的王者動作。',
-                tip: '累的時候可以省略俯臥撐和最後跳躍，改為站立。',
-                muscles: '全身肌肉、心肺爆發力'
+        // --- Gemini API Configuration ---
+        const apiKey = ""; // The environment provides the key at runtime
+        
+        async function fetchGeminiJSON(promptText) {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+            const payload = {
+                contents: [{ parts: [{ text: promptText }] }],
+                generationConfig: {
+                    responseMimeType: "application/json",
+                    responseSchema: {
+                        type: "OBJECT",
+                        properties: {
+                            exercises: {
+                                type: "ARRAY",
+                                items: { type: "STRING" }
+                            }
+                        }
+                    }
+                }
+            };
+            
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await response.json();
+                const jsonStr = data.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (!jsonStr) throw new Error("No output from AI");
+                return JSON.parse(jsonStr);
+            } catch (error) {
+                console.error("Gemini API Error:", error);
+                return null;
             }
+        }
+
+        async function fetchGeminiText(promptText) {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+            const payload = {
+                contents: [{ parts: [{ text: promptText }] }]
+            };
+            
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await response.json();
+                return data.candidates?.[0]?.content?.parts?.[0]?.text || "流汗就是最棒的回報，繼續保持！💪";
+            } catch (error) {
+                console.error("Gemini API Error:", error);
+                return "流汗就是最棒的回報，繼續保持！💪";
+            }
+        }
+
+        // --- 基本設定與資料 (加入真實圖片與備用 Emoji) ---
+        const EXERCISES_DB = {
+            jumping_jacks: { name: '開合跳 (Jumping Jacks)', desc: '雙腳跳開時雙手高舉頭頂拍手，落地緩衝。', emoji: '🤸', img: 'https://images.unsplash.com/photo-1546483875-ad9014c88efa?w=400&h=300&fit=crop&q=80' },
+            squats: { name: '徒手深蹲 (Bodyweight Squats)', desc: '雙腳與肩同寬，重心放在腳跟，臀部向後向下。', emoji: '🏋️', img: 'https://images.unsplash.com/photo-1574680178050-55c6a6a96e0a?w=400&h=300&fit=crop&q=80' },
+            knee_drives: { name: '站立膝擊 (Standing Knee Drives)', desc: '雙手高舉拉向胸前，雙腳交替抬膝。', emoji: '🏃', img: 'https://images.unsplash.com/photo-1538805060514-97d9cc17730c?w=400&h=300&fit=crop&q=80' },
+            plank: { name: '棒式 (Plank)', desc: '手肘撐地，身體呈一直線。', emoji: '📏', img: 'https://images.unsplash.com/photo-1566241142559-40e1e694f4ed?w=400&h=300&fit=crop&q=80' },
+            fast_feet: { name: '快速踏步 (Fast Feet)', desc: '原地快速交替小碎步，腳掌著地。', emoji: '⚡', img: 'https://images.unsplash.com/photo-1434608519344-49d77a699e1d?w=400&h=300&fit=crop&q=80' },
+            squat_calf_raise: { name: '深蹲墊腳 (Squat to Calf Raise)', desc: '深蹲站起時順勢墊起腳尖。', emoji: '🦒', img: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=400&h=300&fit=crop&q=80' },
+            shadow_boxing: { name: '拳擊直拳 (Shadow Boxing)', desc: '雙腳前後站，快速交替揮出直拳。', emoji: '🥊', img: 'https://images.unsplash.com/photo-1509563268479-0f004cf3f58b?w=400&h=300&fit=crop&q=80' },
+            skater_hops: { name: '溜冰者側跳 (Skater Hops)', desc: '左右交替側跳，單腳緩衝落地。', emoji: '⛸️', img: 'https://images.unsplash.com/photo-1552674605-db6ffd4facb5?w=400&h=300&fit=crop&q=80' },
+            reverse_lunges: { name: '弓步蹲 (Reverse Lunges)', desc: '單腳向後大跨步並下蹲成90度。', emoji: '🦵', img: 'https://images.unsplash.com/photo-1434682881908-b43d0467b798?w=400&h=300&fit=crop&q=80' },
+            high_knees: { name: '高抬腿 (High Knees)', desc: '原地快速交替跑步，大腿抬高。', emoji: '🔥', img: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400&h=300&fit=crop&q=80' },
+            mountain_climbers: { name: '登山者 (Mountain Climbers)', desc: '伏地挺身姿，雙腳交替快速朝胸部收膝。', emoji: '🧗', img: 'https://images.unsplash.com/photo-1598971639058-fab3c3109a00?w=400&h=300&fit=crop&q=80' },
+            burpees: { name: '波比跳 (Burpees)', desc: '下蹲、後跳、收腿、躍起拍手。', emoji: '💀', img: 'https://images.unsplash.com/photo-1599058917212-97d142f1fde1?w=400&h=300&fit=crop&q=80' }
         };
 
-        // 4週16天課表，高度符合「每天微調強度，新手無痛」
         const PROGRAM_DATA = [
-            // Week 1: 基礎習慣養成
-            {
-                week: 1, day: 1,
-                title: "第一週：習慣萌芽 Day 1",
-                focus: "無痛開局",
-                desc: "今天只追求輕鬆完成！讓身體找到動起來的韻律感。",
-                workSec: 20, restSec: 40, rounds: 2,
-                exercises: ['jumping_jacks', 'squats', 'knee_drives', 'plank'],
-                tip: "今天不求快，只要每個動作做到、跟著節奏呼吸就好。"
-            },
-            {
-                week: 1, day: 2,
-                title: "第一週：習慣萌芽 Day 2",
-                focus: "微降休息 2 秒",
-                desc: "我們稍微將休息時間減少 2 秒，感覺幾乎沒有差別！",
-                workSec: 20, restSec: 38, rounds: 2,
-                exercises: ['jumping_jacks', 'squats', 'knee_drives', 'plank'],
-                tip: "減少了 2 秒休息，看看你是否依舊覺得游刃有餘？"
-            },
-            {
-                week: 1, day: 3,
-                title: "第一週：習慣萌芽 Day 3",
-                focus: "微調休息 5 秒",
-                desc: "休息縮短到 35 秒。今天嘗試在做徒手深蹲時蹲得更深一點點。",
-                workSec: 20, restSec: 35, rounds: 2,
-                exercises: ['jumping_jacks', 'squats', 'knee_drives', 'plank'],
-                tip: "深蹲時重心往腳後跟放，像是在坐一張矮椅子。"
-            },
-            {
-                week: 1, day: 4,
-                title: "第一週：習慣萌芽 Day 4",
-                focus: "建立堅實核心",
-                desc: "第一週的最後一天，休息時間改為 30 秒。你已經連續完成了四次訓練！",
-                workSec: 20, restSec: 30, rounds: 2,
-                exercises: ['jumping_jacks', 'squats', 'knee_drives', 'plank'],
-                tip: "最後的棒式支撐時，腹部稍微往內縮，像是在躲避一記拳擊。"
-            },
-
-            // Week 2: 能力提升
-            {
-                week: 2, day: 1,
-                title: "第二週：能力提升 Day 1",
-                focus: "中級新起點",
-                desc: "升級到 3 回合，運動與休息時間拉成 1:1（30秒運動，30秒休息），動作也迎來更新。",
-                workSec: 30, restSec: 30, rounds: 3,
-                exercises: ['fast_feet', 'squat_calf_raise', 'shadow_boxing', 'plank'],
-                tip: "快速踏步時腳掌保持輕盈，拳擊直拳時手臂打直但關節不鎖死。"
-            },
-            {
-                week: 2, day: 2,
-                title: "第二週：能力提升 Day 2",
-                focus: "微縮休息 2 秒",
-                desc: "稍微減少休息時間。今天著重在深蹲墊腳時的身體平衡性。",
-                workSec: 30, restSec: 28, rounds: 3,
-                exercises: ['fast_feet', 'squat_calf_raise', 'shadow_boxing', 'plank'],
-                tip: "在深蹲站直並墊起腳尖時，收緊腹部維持一秒鐘的靜止平衡。"
-            },
-            {
-                week: 2, day: 3,
-                title: "第二週：能力提升 Day 3",
-                focus: "加快出拳節奏",
-                desc: "休息減至 25 秒。今天在 30 秒的出拳時間內，嘗試挑戰比昨天多揮 5 拳。",
-                workSec: 30, restSec: 25, rounds: 3,
-                exercises: ['fast_feet', 'squat_calf_raise', 'shadow_boxing', 'plank'],
-                tip: "出拳時腰部要稍微轉動，這樣才能動用到腰腹核心肌肉。"
-            },
-            {
-                week: 2, day: 4,
-                title: "第二週：能力提升 Day 4",
-                focus: "半程里程碑",
-                desc: "今天是第二週的收官戰，運動 30 秒，休息僅 22 秒。堅持就是勝利！",
-                workSec: 30, restSec: 22, rounds: 3,
-                exercises: ['fast_feet', 'squat_calf_raise', 'shadow_boxing', 'plank'],
-                tip: "今天最後一回合的棒式，試著比平常再多堅持 5 秒吧！"
-            },
-
-            // Week 3: 燃脂突破
-            {
-                week: 3, day: 1,
-                title: "第三週：燃脂突破 Day 1",
-                focus: "動作難度升級",
-                desc: "進入高燃脂期。採用高強度比例（40秒運動，25秒休息），加入側跳與後弓步。",
-                workSec: 40, restSec: 25, rounds: 3,
-                exercises: ['skater_hops', 'reverse_lunges', 'high_knees', 'mountain_climbers'],
-                tip: "溜冰者左右跳要注意膝蓋緩衝，落地時像貓一樣輕。"
-            },
-            {
-                week: 3, day: 2,
-                title: "第三週：燃脂突破 Day 2",
-                focus: "強化下肢力量",
-                desc: "休息減至 22 秒。後弓步蹲是極好的臀腿訓練，維持骨盆正向。",
-                workSec: 40, restSec: 22, rounds: 3,
-                exercises: ['skater_hops', 'reverse_lunges', 'high_knees', 'mountain_climbers'],
-                tip: "做弓步蹲時，後腳膝蓋朝地面輕輕點去，前腳大腿與地面平行。"
-            },
-            {
-                week: 3, day: 3,
-                title: "第三週：燃脂突破 Day 3",
-                focus: "突破高抬腿",
-                desc: "休息時間 20 秒。高抬腿是心肺大魔王，今天試著雙手放手肘高，讓大腿盡量碰到手掌。",
-                workSec: 40, restSec: 20, rounds: 3,
-                exercises: ['skater_hops', 'reverse_lunges', 'high_knees', 'mountain_climbers'],
-                tip: "累了可以放慢速度，但不要停下來，改成原地跨步提膝也可以。"
-            },
-            {
-                week: 3, day: 4,
-                title: "第三週：燃脂突破 Day 4",
-                focus: "多做一回合",
-                desc: "為了明天的突破，今天回合數來到 4 回合，休息 18 秒。汗水是努力的印記！",
-                workSec: 40, restSec: 18, rounds: 4,
-                exercises: ['skater_hops', 'reverse_lunges', 'high_knees', 'mountain_climbers'],
-                tip: "登山者動作中，保持雙肩在手腕正上方，核心用力繃緊。"
-            },
-
-            // Week 4: 終極挑戰
-            {
-                week: 4, day: 1,
-                title: "第四週：終極挑戰 Day 1",
-                focus: "Tabata 模式啟動",
-                desc: "進入地獄式 Tabata 模式：全力以赴 20 秒，休息僅 12 秒。魔王波比跳登場。",
-                workSec: 20, restSec: 12, rounds: 4,
-                exercises: ['burpees', 'squat_calf_raise', 'mountain_climbers', 'plank'],
-                tip: "波比跳可以不做伏地挺身，著重在快速起跳與收腿。"
-            },
-            {
-                week: 4, day: 2,
-                title: "第四週：終極挑戰 Day 2",
-                focus: "極限 10 秒休息",
-                desc: "最經典的 Tabata 模式：動 20 秒，休息 10 秒。心率將直線上飆，高效燃脂！",
-                workSec: 20, restSec: 10, rounds: 4,
-                exercises: ['burpees', 'squat_calf_raise', 'mountain_climbers', 'plank'],
-                tip: "只有 10 秒休息，深呼吸兩大口，就要立刻準備下一組。"
-            },
-            {
-                week: 4, day: 3,
-                title: "第四週：終極挑戰 Day 3",
-                focus: "意志力熔爐 (5回合)",
-                desc: "維持動 20s 充 10s，但拉長至 5 個回合。考驗你的肌肉耐力與意志力。",
-                workSec: 20, restSec: 10, rounds: 5,
-                exercises: ['burpees', 'squat_calf_raise', 'mountain_climbers', 'plank'],
-                tip: "專注在每一次的動作呼吸：起時吐氣，落時吸氣，穩住步調。"
-            },
-            {
-                week: 4, day: 4,
-                title: "第四週：終極挑戰 Day 4",
-                focus: "終極狂暴 (25s Work)",
-                desc: "最後的畢業典禮！運動時間拉長至 25 秒，休息僅 10 秒，全力打完 5 回合！",
-                workSec: 25, restSec: 10, rounds: 5,
-                exercises: ['burpees', 'squat_calf_raise', 'mountain_climbers', 'plank'],
-                tip: "這是你四週訓練的成果展示。不留餘力，享受運動帶來的多巴胺狂歡！"
-            }
+            { week: 1, day: 1, title: "習慣萌芽 Day 1", focus: "無痛開局", workSec: 20, restSec: 40, rounds: 2, exercises: ['jumping_jacks', 'squats', 'knee_drives', 'plank'] },
+            { week: 1, day: 2, title: "習慣萌芽 Day 2", focus: "微降休息", workSec: 20, restSec: 38, rounds: 2, exercises: ['jumping_jacks', 'squats', 'knee_drives', 'plank'] },
+            { week: 1, day: 3, title: "習慣萌芽 Day 3", focus: "加強深蹲", workSec: 20, restSec: 35, rounds: 2, exercises: ['jumping_jacks', 'squats', 'knee_drives', 'plank'] },
+            { week: 1, day: 4, title: "習慣萌芽 Day 4", focus: "核心堅持", workSec: 20, restSec: 30, rounds: 2, exercises: ['jumping_jacks', 'squats', 'knee_drives', 'plank'] },
+            { week: 2, day: 1, title: "能力提升 Day 1", focus: "增加回合", workSec: 30, restSec: 30, rounds: 3, exercises: ['fast_feet', 'squat_calf_raise', 'shadow_boxing', 'plank'] },
+            { week: 2, day: 2, title: "能力提升 Day 2", focus: "縮減休息", workSec: 30, restSec: 28, rounds: 3, exercises: ['fast_feet', 'squat_calf_raise', 'shadow_boxing', 'plank'] },
+            { week: 2, day: 3, title: "能力提升 Day 3", focus: "加速出拳", workSec: 30, restSec: 25, rounds: 3, exercises: ['fast_feet', 'squat_calf_raise', 'shadow_boxing', 'plank'] },
+            { week: 2, day: 4, title: "能力提升 Day 4", focus: "耐力考驗", workSec: 30, restSec: 22, rounds: 3, exercises: ['fast_feet', 'squat_calf_raise', 'shadow_boxing', 'plank'] },
+            { week: 3, day: 1, title: "燃脂突破 Day 1", focus: "難度升級", workSec: 40, restSec: 25, rounds: 3, exercises: ['skater_hops', 'reverse_lunges', 'high_knees', 'mountain_climbers'] },
+            { week: 3, day: 2, title: "燃脂突破 Day 2", focus: "下肢力量", workSec: 40, restSec: 22, rounds: 3, exercises: ['skater_hops', 'reverse_lunges', 'high_knees', 'mountain_climbers'] },
+            { week: 3, day: 3, title: "燃脂突破 Day 3", focus: "心肺衝刺", workSec: 40, restSec: 20, rounds: 3, exercises: ['skater_hops', 'reverse_lunges', 'high_knees', 'mountain_climbers'] },
+            { week: 3, day: 4, title: "燃脂突破 Day 4", focus: "極限 4 回合", workSec: 40, restSec: 18, rounds: 4, exercises: ['skater_hops', 'reverse_lunges', 'high_knees', 'mountain_climbers'] },
+            { week: 4, day: 1, title: "終極挑戰 Day 1", focus: "Tabata 啟動", workSec: 20, restSec: 12, rounds: 4, exercises: ['burpees', 'squat_calf_raise', 'mountain_climbers', 'plank'] },
+            { week: 4, day: 2, title: "終極挑戰 Day 2", focus: "10秒休息", workSec: 20, restSec: 10, rounds: 4, exercises: ['burpees', 'squat_calf_raise', 'mountain_climbers', 'plank'] },
+            { week: 4, day: 3, title: "終極挑戰 Day 3", focus: "5 回合地獄", workSec: 20, restSec: 10, rounds: 5, exercises: ['burpees', 'squat_calf_raise', 'mountain_climbers', 'plank'] },
+            { week: 4, day: 4, title: "終極挑戰 Day 4", focus: "最終畢業考", workSec: 25, restSec: 10, rounds: 5, exercises: ['burpees', 'squat_calf_raise', 'mountain_climbers', 'plank'] }
         ];
 
-        // 應用狀態管理
-        let currentActiveTab = 'dashboard';
-        let selectedWeekFilter = 1;
+        // --- 狀態管理 ---
         let completedWorkouts = JSON.parse(localStorage.getItem('habithiit_completed') || '[]');
-        let activeWorkout = null; // 當前選擇準備開始的運動日
+        let activeWorkout = null;
+        let selectedWeekFilter = 1;
+        let isVoiceEnabled = true;
 
-        // 計時器執行期狀態
         let timerInterval = null;
-        let timerState = 'idle'; // 'idle', 'countdown', 'work', 'rest', 'paused'
-        let currentIntervalIndex = 0; // 當前在總時程表中的第幾項
+        let timerState = 'idle'; 
+        let currentIntervalIndex = 0; 
         let totalWorkoutSeconds = 0;
         let secondsLeftInInterval = 0;
         let elapsedTotalSeconds = 0;
-        let timeline = []; // 由 {type: 'countdown'|'work'|'rest', name, duration, exerciseId} 組成的時間軸
+        let timeline = [];
 
-        // 初始化音訊 (Web Audio API)
-        let audioCtx = null;
-        function getAudioContext() {
-            if (!audioCtx) {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            }
-            if (audioCtx.state === 'suspended') {
-                audioCtx.resume();
-            }
-            return audioCtx;
-        }
-
-        function playSound(freq, duration, type = 'sine') {
-            try {
-                const ctx = getAudioContext();
-                const osc = ctx.createOscillator();
-                const gain = ctx.createGain();
-                
-                osc.type = type;
-                osc.frequency.setValueAtTime(freq, ctx.currentTime);
-                
-                gain.gain.setValueAtTime(0.08, ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
-                
-                osc.connect(gain);
-                gain.connect(ctx.destination);
-                
-                osc.start();
-                osc.stop(ctx.currentTime + duration);
-            } catch (e) {
-                console.log("Audio not allowed or supported yet", e);
-            }
-        }
-
-        // 當日 HIIT 計時嗶聲
-        function playBeepLow() { playSound(600, 0.15); }
-        function playBeepHigh() { playSound(1200, 0.4); }
-        function playWhistle() { 
-            // 模擬裁判哨聲
-            playSound(1500, 0.15, 'square');
-            setTimeout(() => playSound(1800, 0.3, 'square'), 80);
-        }
-
-        // 頁面加載初始化
+        // --- 初始化 ---
         window.addEventListener('DOMContentLoaded', () => {
             renderGuides();
             renderProgramDays();
@@ -649,14 +455,11 @@
             switchTab('dashboard');
         });
 
-        // 路由/Tab 切換
         function switchTab(tabId) {
-            currentActiveTab = tabId;
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
             document.getElementById(`tab-${tabId}`).classList.remove('hidden');
 
-            // 底部高亮更新
-            ['dashboard', 'program', 'guide'].forEach(t => {
+            ['dashboard', 'program', 'custom', 'guide'].forEach(t => {
                 const navBtn = document.getElementById(`nav-${t}`);
                 if (t === tabId) {
                     navBtn.classList.remove('text-slate-500');
@@ -666,354 +469,403 @@
                     navBtn.classList.add('text-slate-500');
                 }
             });
-
             window.scrollTo({top: 0, behavior: 'smooth'});
         }
 
-        // 當點擊 YouTube 教學時，自動暫停計時器
-        function pauseForVideo() {
-            if (timerState !== 'paused' && timerState !== 'idle') {
-                timerState = 'paused';
-                const btnPause = document.getElementById('btn-timer-pause');
-                const svgPause = document.getElementById('svg-pause');
-                const svgResume = document.getElementById('svg-resume');
-                if (svgPause && svgResume) {
-                    svgPause.classList.add('hidden');
-                    svgResume.classList.remove('hidden');
-                }
+        // --- AI 語音廣播 ---
+        function toggleVoice() {
+            isVoiceEnabled = !isVoiceEnabled;
+            const btn = document.getElementById('btn-voice');
+            if (isVoiceEnabled) {
+                btn.classList.remove('text-slate-600');
+                btn.classList.add('text-brand-400');
+                speak("語音提示已開啟");
+            } else {
+                btn.classList.remove('text-brand-400');
+                btn.classList.add('text-slate-600');
+                window.speechSynthesis.cancel();
             }
         }
 
-        // 渲染動作指南
+        function speak(text) {
+            if (!isVoiceEnabled || !('speechSynthesis' in window)) return;
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'zh-TW';
+            utterance.rate = 1.1; 
+            window.speechSynthesis.speak(utterance);
+        }
+
+        // --- 音效 ---
+        let audioCtx = null;
+        function playSound(freq, duration, type = 'sine') {
+            try {
+                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(); osc.stop(audioCtx.currentTime + duration);
+            } catch (e) {}
+        }
+        function playBeepLow() { playSound(600, 0.15); }
+        function playBeepHigh() { playSound(1200, 0.4); }
+
+        // --- 渲染 UI (加入圖片卡片) ---
         function renderGuides() {
             const container = document.getElementById('guides-container');
             container.innerHTML = '';
-            
             Object.values(EXERCISES_DB).forEach(ex => {
-                const cleanName = ex.name.split(' (')[0];
-                const ytQuery = encodeURIComponent('HIIT ' + cleanName + ' 教學');
-                const ytUrl = `https://www.youtube.com/results?search_query=${ytQuery}`;
-
-                const card = document.createElement('div');
-                card.className = "bg-slate-900 border border-slate-800 rounded-2xl p-5 hover:border-slate-700 transition flex flex-col justify-between";
-                card.innerHTML = `
-                    <div class="space-y-2">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <h3 class="font-bold text-base text-slate-100">${ex.name}</h3>
-                                <span class="text-[10px] text-brand-400 border border-brand-500/30 bg-brand-500/10 px-2 py-0.5 rounded-full font-semibold uppercase">${ex.muscles.split('、')[0]}</span>
-                            </div>
-                            <!-- YouTube 教學搜尋按鈕 -->
-                            <a href="${ytUrl}" target="_blank" rel="noopener noreferrer" class="flex items-center space-x-1 text-xs text-rose-500 hover:text-rose-400 bg-rose-500/10 hover:bg-rose-500/20 px-3 py-1.5 rounded-full font-bold transition-all shrink-0" title="在 YouTube 搜尋動作教學影片">
-                                <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
-                                    <path d="M23.498 6.163a3.003 3.003 0 0 0-2.11-2.11C19.518 3.545 12 3.545 12 3.545s-7.518 0-9.388.508a3.003 3.003 0 0 0-2.11 2.11C0 8.033 0 12 0 12s0 3.967.502 5.837a3.003 3.003 0 0 0 2.11 2.11c1.87.508 9.388.508 9.388.508s7.518 0 9.388-.508a3.003 3.003 0 0 0 2.11-2.11C24 15.967 24 12 24 12s0-3.967-.502-5.837zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
-                                </svg>
-                                <span>教學影片</span>
-                            </a>
+                const ytUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent('HIIT ' + ex.name.split(' ')[0] + ' 教學')}`;
+                container.innerHTML += `
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden flex flex-col group hover:border-slate-700 transition">
+                        <!-- 圖片封面區 -->
+                        <div class="h-32 w-full bg-slate-800 relative">
+                            <img src="${ex.img}" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity duration-300" onerror="this.classList.add('hidden'); this.nextElementSibling.classList.replace('hidden', 'flex');">
+                            <!-- 圖片失效時的 Emoji 備用方案 -->
+                            <div class="absolute inset-0 hidden flex-col items-center justify-center text-5xl bg-slate-800">${ex.emoji}</div>
                         </div>
-                        <p class="text-xs text-slate-400 leading-relaxed">${ex.desc}</p>
-                    </div>
-                    <div class="mt-4 pt-3 border-t border-slate-800/80">
-                        <p class="text-xs text-slate-500"><span class="text-emerald-500 font-bold">💡 技巧：</span>${ex.tip}</p>
-                        <p class="text-[10px] text-slate-600 mt-1">主要肌群: ${ex.muscles}</p>
-                    </div>
-                `;
-                container.appendChild(card);
+                        
+                        <div class="p-4 flex flex-col flex-grow justify-between border-t border-slate-800/50">
+                            <div>
+                                <div class="flex justify-between items-start mb-2">
+                                    <h3 class="font-bold text-slate-100 flex items-center gap-2">
+                                        <span>${ex.emoji}</span> ${ex.name}
+                                    </h3>
+                                    <a href="${ytUrl}" target="_blank" class="text-[10px] text-rose-500 bg-rose-500/10 px-3 py-1.5 rounded-full font-bold whitespace-nowrap shrink-0 hover:bg-rose-500/20 transition">🎥 教學</a>
+                                </div>
+                                <p class="text-xs text-slate-400 leading-relaxed">${ex.desc}</p>
+                            </div>
+                        </div>
+                    </div>`;
             });
         }
 
-        // 過濾顯示特定週次的課表
-        function filterWeek(weekNum) {
-            selectedWeekFilter = weekNum;
-            document.querySelectorAll('.week-filter-btn').forEach(btn => {
-                btn.classList.remove('border-brand-500', 'text-brand-400');
-                btn.classList.add('border-transparent', 'text-slate-400');
+        function filterWeek(w) {
+            selectedWeekFilter = w;
+            document.querySelectorAll('.week-filter-btn').forEach((btn, idx) => {
+                btn.className = `week-filter-btn px-4 py-2 text-sm font-bold border-b-2 whitespace-nowrap ${idx+1 === w ? 'border-brand-500 text-brand-400' : 'border-transparent text-slate-400'}`;
             });
-            
-            const activeBtn = document.getElementById(`btn-week-${weekNum}`);
-            activeBtn.classList.remove('border-transparent', 'text-slate-400');
-            activeBtn.classList.add('border-brand-500', 'text-brand-400');
-
             renderProgramDays();
         }
 
-        // 渲染課程卡片
         function renderProgramDays() {
             const container = document.getElementById('days-container');
             container.innerHTML = '';
-
-            const filtered = PROGRAM_DATA.filter(day => day.week === selectedWeekFilter);
-
-            filtered.forEach(day => {
+            PROGRAM_DATA.filter(d => d.week === selectedWeekFilter).forEach(day => {
                 const key = `W${day.week}D${day.day}`;
                 const isCompleted = completedWorkouts.includes(key);
-                
-                // 計算總時長
-                const totalActiveSec = (day.workSec + day.restSec) * day.exercises.length * day.rounds;
-                const minutes = Math.floor(totalActiveSec / 60);
-                const seconds = totalActiveSec % 60;
-                const durationStr = `${minutes}分${seconds > 0 ? seconds + '秒' : ''}`;
-
-                // 動作名稱預覽
-                const exerciseNames = day.exercises.map(eid => EXERCISES_DB[eid]?.name.split(' ')[0] || '').join(' · ');
-
-                const card = document.createElement('div');
-                card.className = `border rounded-2xl p-5 transition-all relative overflow-hidden ${
-                    isCompleted 
-                    ? 'bg-slate-900/30 border-slate-800/60 opacity-80' 
-                    : 'bg-slate-900 border-slate-800 hover:border-slate-700 hover:shadow-lg'
-                }`;
-
-                card.innerHTML = `
-                    <div class="flex justify-between items-start">
-                        <div class="space-y-1">
-                            <div class="flex items-center space-x-2">
-                                <span class="text-xs text-brand-400 font-bold uppercase tracking-wider">Day ${day.day} · ${day.focus}</span>
-                                ${isCompleted ? '<span class="bg-emerald-500/20 text-emerald-400 text-[10px] font-bold px-2 py-0.5 rounded-full">已打卡</span>' : ''}
+                const exNames = day.exercises.map(e => EXERCISES_DB[e].name.split(' ')[0]).join(' · ');
+                container.innerHTML += `
+                    <div class="border rounded-2xl p-5 ${isCompleted ? 'bg-slate-900/40 border-slate-800/50' : 'bg-slate-900 border-slate-800'}">
+                        <div class="flex justify-between items-center mb-2">
+                            <div>
+                                <span class="text-xs text-brand-400 font-bold">Day ${day.day} · ${day.focus}</span>
+                                <h3 class="font-bold text-lg text-slate-100">${day.title}</h3>
                             </div>
-                            <h3 class="font-bold text-lg text-slate-100">${day.title}</h3>
+                            <button onclick="launchWorkout(${day.week}, ${day.day})" class="bg-brand-500 hover:bg-brand-400 text-white p-3 rounded-full shadow-lg shadow-brand-500/20 active:scale-95 transition-all"><svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button>
                         </div>
-                        
-                        <button onclick="launchWorkout(${day.week}, ${day.day})" class="bg-slate-800 hover:bg-brand-500 hover:text-white p-3 rounded-full text-slate-400 transition-all duration-200">
-                            <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                        </button>
-                    </div>
-
-                    <p class="text-xs text-slate-400 mt-2 leading-relaxed">${day.desc}</p>
-
-                    <!-- 設定參數細節 -->
-                    <div class="grid grid-cols-4 gap-2 my-4 bg-slate-950/50 p-3 rounded-xl border border-slate-800/80 text-center">
-                        <div>
-                            <span class="text-[10px] text-slate-500 block">運動</span>
-                            <span class="text-sm font-black text-emerald-400 tabular-nums">${day.workSec}s</span>
-                        </div>
-                        <div>
-                            <span class="text-[10px] text-slate-500 block">休息</span>
-                            <span class="text-sm font-black text-amber-400 tabular-nums">${day.restSec}s</span>
-                        </div>
-                        <div>
-                            <span class="text-[10px] text-slate-500 block">回合數</span>
-                            <span class="text-sm font-black text-brand-400 tabular-nums">${day.rounds}</span>
-                        </div>
-                        <div>
-                            <span class="text-[10px] text-slate-500 block">預估時間</span>
-                            <span class="text-sm font-black text-slate-300 whitespace-nowrap">${durationStr}</span>
-                        </div>
-                    </div>
-
-                    <div class="flex justify-between items-center text-xs">
-                        <span class="text-slate-500 truncate max-w-[70%]">動作: ${exerciseNames}</span>
-                        <span class="text-slate-400 italic">💡 ${day.tip.slice(0, 16)}...</span>
-                    </div>
-                `;
-                container.appendChild(card);
+                        <div class="text-xs text-slate-400 mb-2">動 ${day.workSec}s | 休 ${day.restSec}s | 共 ${day.rounds} 回合</div>
+                        <div class="text-xs text-slate-500">動作: ${exNames}</div>
+                    </div>`;
             });
         }
 
-        // 計算累計數據並更新介面
         function updateStats() {
             document.getElementById('stat-total-workouts').innerText = completedWorkouts.length;
-            
-            // 計算連續打卡天數 (Streak)
-            let streak = 0;
-            // 這裡簡單判定連續完成的天數，如果當日與前幾日存在於紀錄中
-            // 由於天數命名為 W1D1, W1D2... 這裡用精確的歷史打卡日排序計算
-            // 為了簡化，算有多少個不重複的歷史記錄代表打卡天數
-            streak = completedWorkouts.length; // 在此簡化為累計完成次數
-            document.getElementById('stat-streak').innerText = streak;
-
-            // 計算段位
-            let level = "新手萌芽";
-            if (streak >= 16) {
-                level = "極限大師 🏆";
-            } else if (streak >= 12) {
-                level = "燃脂戰士 🔥";
-            } else if (streak >= 8) {
-                level = "規律進階 ⚡";
-            } else if (streak >= 4) {
-                level = "習慣養成 🌱";
-            }
-            document.getElementById('stat-level').innerText = level;
+            document.getElementById('stat-streak').innerText = completedWorkouts.length;
         }
 
-        // 自動推薦今日應該做的訓練 (尋找第一個未完成的)
         function updateRecommendation() {
-            let recommendedDay = PROGRAM_DATA.find(day => {
-                const key = `W${day.week}D${day.day}`;
-                return !completedWorkouts.includes(key);
-            });
+            let rec = PROGRAM_DATA.find(d => !completedWorkouts.includes(`W${d.week}D${d.day}`)) || PROGRAM_DATA[15];
+            activeWorkout = rec;
+            document.getElementById('rec-title').innerText = rec.title;
+            document.getElementById('rec-subtitle').innerText = `今天目標：${rec.focus}`;
+        }
+        function startRecommendedWorkout() { if(activeWorkout) launchWorkout(activeWorkout.week, activeWorkout.day); }
 
-            // 如果全部做完了，就推薦最後一天
-            if (!recommendedDay) {
-                recommendedDay = PROGRAM_DATA[PROGRAM_DATA.length - 1];
+        // --- ✨ Gemini AI 智能編排課表 ---
+        async function generateAIWorkout() {
+            const promptInput = document.getElementById('ai-prompt-input').value.trim();
+            const wSec = parseInt(document.getElementById('custom-work').value);
+            const rSec = parseInt(document.getElementById('custom-rest').value);
+            const rnds = parseInt(document.getElementById('custom-rounds').value);
+
+            // UI 變成 Loading 狀態
+            const btnIcon = document.getElementById('ai-btn-icon');
+            const btnText = document.getElementById('ai-btn-text');
+            const originalIcon = btnIcon.innerText;
+            btnIcon.innerHTML = `<svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>`;
+            btnText.innerText = "AI 正在為你思考...";
+            
+            // 準備給 LLM 的動作庫描述
+            const exerciseKeys = Object.keys(EXERCISES_DB);
+            const dbDescription = exerciseKeys.map(k => `${k} (${EXERCISES_DB[k].name}: ${EXERCISES_DB[k].desc})`).join("; ");
+            
+            const prompt = `
+                You are an expert fitness coach creating a HIIT workout. 
+                The user wants a customized workout with exactly ${rnds} different exercises.
+                User's request: "${promptInput || 'General full body workout'}".
+                
+                Choose exactly ${rnds} exercise IDs from this list that best fit the request: ${dbDescription}.
+                (If you need more than the list length, you can repeat exercises, but try to vary them).
+                Return ONLY a JSON object with a single property 'exercises' which is an array of strings representing the chosen exercise IDs.
+            `;
+
+            try {
+                const aiResult = await fetchGeminiJSON(prompt);
+                
+                let chosenExercises = aiResult?.exercises;
+                if (!chosenExercises || chosenExercises.length === 0) {
+                    throw new Error("AI did not return proper exercises");
+                }
+                
+                // 補足或截斷至剛好符合的回合數 (如果 AI 犯錯)
+                while(chosenExercises.length < rnds) {
+                    chosenExercises.push(exerciseKeys[Math.floor(Math.random() * exerciseKeys.length)]);
+                }
+                chosenExercises = chosenExercises.slice(0, rnds);
+
+                // 設定播放清單
+                activeWorkout = { isCustom: true, title: "✨ AI 客製化訓練", week: "AI", day: "專屬" };
+                timeline = [{ type: 'countdown', name: '預備開始', duration: 5 }];
+                
+                chosenExercises.forEach((exId, index) => {
+                    // 確保 ID 真的在資料庫中
+                    if (!EXERCISES_DB[exId]) exId = exerciseKeys[0]; 
+                    
+                    timeline.push({ type: 'work', name: EXERCISES_DB[exId].name, duration: wSec, exId: exId, isCustom: false, round: index + 1, totalR: rnds });
+                    if (index < rnds - 1) {
+                        timeline.push({ type: 'rest', name: '休息', duration: rSec, round: index + 1, totalR: rnds });
+                    }
+                });
+
+                startTimerOverlay(`✨ AI 客製化訓練`);
+
+            } catch (error) {
+                console.error(error);
+                alert("AI 思考好像遇到了點問題，請稍後再試，或使用一般啟動！");
+            } finally {
+                // 復原 UI
+                btnIcon.innerText = originalIcon;
+                btnText.innerText = "AI 為我安排";
             }
-
-            activeWorkout = recommendedDay;
-
-            document.getElementById('rec-title').innerText = recommendedDay.title;
-            const totalActiveSec = (recommendedDay.workSec + recommendedDay.restSec) * recommendedDay.exercises.length * recommendedDay.rounds;
-            const mins = Math.floor(totalActiveSec / 60);
-            document.getElementById('rec-subtitle').innerText = `今天目標：${recommendedDay.focus} · 每次僅需 ${mins} 分鐘！`;
         }
 
-        function startRecommendedWorkout() {
-            if (activeWorkout) {
-                launchWorkout(activeWorkout.week, activeWorkout.day);
+        // --- ✨ Gemini AI 動作指導教練 (Q&A) ---
+        async function askAIFitnessCoach() {
+            const inputEl = document.getElementById('ai-qa-input');
+            const responseEl = document.getElementById('ai-qa-response');
+            const btnEl = document.getElementById('btn-ai-qa');
+            const question = inputEl.value.trim();
+
+            if (!question) return;
+
+            // UI 變成 Loading 狀態
+            inputEl.disabled = true;
+            btnEl.disabled = true;
+            btnEl.innerHTML = `<svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>`;
+            responseEl.classList.remove('hidden');
+            responseEl.classList.add('ai-shimmer', 'text-transparent');
+            responseEl.innerText = "教練思考中...";
+
+            const prompt = `你是一位專業、有耐心的居家 HIIT 健身教練。使用者詢問：「${question}」。請用繁體中文給出實用、安全的建議或動作替代方案。回覆請保持在 150 字以內，語氣親切，並加上適當的 Emoji。不要使用 markdown 語法，純文字即可。`;
+
+            try {
+                const answer = await fetchGeminiText(prompt);
+                
+                // 復原 UI 並顯示答案
+                responseEl.classList.remove('ai-shimmer', 'text-transparent');
+                responseEl.innerHTML = `<span class="font-bold text-purple-400">✨ AI 教練回覆：</span><br><span class="mt-1 block">${answer}</span>`;
+                
+                // 語音播報
+                speak(answer);
+            } catch (error) {
+                responseEl.classList.remove('ai-shimmer', 'text-transparent');
+                responseEl.innerText = "抱歉，教練現在有點忙，請稍後再問！";
+            } finally {
+                inputEl.disabled = false;
+                btnEl.disabled = false;
+                btnEl.innerText = "發問";
+                inputEl.value = '';
             }
         }
 
-        // ==========================================
-        //  計時器運作引擎核心 (HIIT Engine)
-        // ==========================================
-
+        // --- 計時器引擎 ---
+        
         function launchWorkout(week, dayNum) {
-            getAudioContext(); // 確保使用者互動觸發了 AudioContext
+            if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if(audioCtx.state === 'suspended') audioCtx.resume();
             
             const workout = PROGRAM_DATA.find(d => d.week === week && d.day === dayNum);
             if (!workout) return;
 
             activeWorkout = workout;
             
-            // 1. 建構完整時間軸
-            timeline = [];
-            
-            // 開頭倒數準備
-            timeline.push({ type: 'countdown', name: '預備開始', duration: 5, exerciseId: null });
-
-            // 按照 回合 -> 動作 一步步堆疊
+            timeline = [{ type: 'countdown', name: '預備開始', duration: 5 }];
             for (let r = 1; r <= workout.rounds; r++) {
-                workout.exercises.forEach((exId, exIdx) => {
-                    // 運動區間
-                    timeline.push({
-                        type: 'work',
-                        name: EXERCISES_DB[exId].name.split(' (')[0],
-                        duration: workout.workSec,
-                        exerciseId: exId,
-                        round: r,
-                        totalRounds: workout.rounds
-                    });
-                    
-                    // 休息區間 (最後一個回合的最後一個動作做完就不需要再休息)
-                    const isLast = (r === workout.rounds) && (exIdx === workout.exercises.length - 1);
-                    if (!isLast) {
-                        timeline.push({
-                            type: 'rest',
-                            name: '休息調息',
-                            duration: workout.restSec,
-                            exerciseId: null,
-                            nextExerciseId: workout.exercises[(exIdx + 1) % workout.exercises.length],
-                            round: r,
-                            totalRounds: workout.rounds
-                        });
+                workout.exercises.forEach((exId, idx) => {
+                    timeline.push({ type: 'work', name: EXERCISES_DB[exId].name, duration: workout.workSec, exId: exId, isCustom: false, round: r, totalR: workout.rounds });
+                    if (!(r === workout.rounds && idx === workout.exercises.length - 1)) {
+                        timeline.push({ type: 'rest', name: '休息', duration: workout.restSec, round: r, totalR: workout.rounds });
                     }
                 });
             }
+            startTimerOverlay(`第 ${week} 週 · Day ${dayNum}`);
+        }
 
-            // 計算總秒數
-            totalWorkoutSeconds = timeline.reduce((sum, item) => sum + item.duration, 0);
+        // 原有的普通自訂啟動 (沒有 AI 挑選動作)
+        function startCustomWorkout(isFallback = true) {
+            if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if(audioCtx.state === 'suspended') audioCtx.resume();
+
+            const wSec = parseInt(document.getElementById('custom-work').value);
+            const rSec = parseInt(document.getElementById('custom-rest').value);
+            const rnds = parseInt(document.getElementById('custom-rounds').value);
+            
+            activeWorkout = { isCustom: true, title: "自訂自由訓練" };
+            timeline = [{ type: 'countdown', name: '預備開始', duration: 5 }];
+            
+            for (let r = 1; r <= rnds; r++) {
+                timeline.push({ type: 'work', name: '運動時間 (全力以赴)', duration: wSec, isCustom: true, round: r, totalR: rnds });
+                if (r < rnds) {
+                    timeline.push({ type: 'rest', name: '休息', duration: rSec, round: r, totalR: rnds });
+                }
+            }
+            startTimerOverlay(`自由訓練模式`);
+        }
+
+        function startTimerOverlay(titleText) {
+            if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if(audioCtx.state === 'suspended') audioCtx.resume();
+
+            totalWorkoutSeconds = timeline.reduce((sum, i) => sum + i.duration, 0);
             elapsedTotalSeconds = 0;
             currentIntervalIndex = 0;
-            
-            // 2. 顯示 Timer Overlay
-            document.getElementById('timer-week-day').innerText = `第 ${workout.week} 週 · 第 ${workout.day} 天`;
+            document.getElementById('timer-week-day').innerText = titleText;
             document.getElementById('timer-overlay').classList.remove('hidden');
-
-            // 3. 啟動計時流程
             timerState = 'countdown';
             startInterval();
         }
 
         function startInterval() {
-            if (currentIntervalIndex >= timeline.length) {
-                completeWorkout();
-                return;
-            }
-
+            if (currentIntervalIndex >= timeline.length) { completeWorkout(); return; }
             const current = timeline[currentIntervalIndex];
             secondsLeftInInterval = current.duration;
 
-            // 更新介面狀態與配色
-            const statusBadge = document.getElementById('timer-status-badge');
-            const progressRing = document.getElementById('timer-progress-ring');
+            const badge = document.getElementById('timer-status-badge');
+            const ring = document.getElementById('timer-progress-ring');
+            const nameEl = document.getElementById('timer-exercise-name');
+            const descEl = document.getElementById('timer-exercise-desc');
             const ytLink = document.getElementById('timer-yt-link');
+            const imgContainer = document.getElementById('timer-img-container');
+            const imgEl = document.getElementById('timer-exercise-img');
+            const emojiEl = document.getElementById('timer-exercise-emoji');
             
+            // 找出下一個運動名稱，用於語音和視覺提示
+            let nextWorkName = "結束！";
+            let nextEx = null;
+            for (let i = currentIntervalIndex + 1; i < timeline.length; i++) {
+                if (timeline[i].type === 'work') {
+                    nextWorkName = timeline[i].name.split(' (')[0];
+                    if (!timeline[i].isCustom && timeline[i].exId) {
+                        nextEx = EXERCISES_DB[timeline[i].exId];
+                    }
+                    break;
+                }
+            }
+
+            // 清理狀態
+            imgContainer.classList.add('hidden');
+            imgEl.classList.remove('hidden');
+            emojiEl.classList.add('hidden');
+
             if (current.type === 'countdown') {
-                statusBadge.innerText = "預備開始";
-                statusBadge.className = "px-6 py-2 rounded-full text-base font-black tracking-widest uppercase bg-blue-500/20 text-blue-400 border border-blue-500/30";
-                progressRing.setAttribute('stroke', '#3b82f6'); // Blue
+                badge.innerText = "預備開始";
+                badge.className = "px-6 py-2 rounded-full font-black bg-blue-500/20 text-blue-400 border border-blue-500/30";
+                ring.setAttribute('stroke', '#3b82f6');
+                nameEl.innerText = "準備好身體";
+                descEl.innerHTML = `<span class="text-xl font-bold text-white">下一個動作：${nextWorkName}</span>`;
+                ytLink.classList.add('hidden');
                 
-                document.getElementById('timer-exercise-name').innerText = "準備好你的身體";
-                document.getElementById('timer-exercise-desc').innerText = "深呼吸，調整呼吸。第一個動作即將開始！";
-                document.getElementById('timer-next-exercise').innerText = timeline[currentIntervalIndex + 1] ? timeline[currentIntervalIndex + 1].name : "結束";
-                document.getElementById('timer-round-info').innerText = "準備階段";
-                if (ytLink) ytLink.classList.add('hidden');
+                speak(`準備開始。下一個動作是：${nextWorkName}`);
+
             } else if (current.type === 'work') {
-                statusBadge.innerText = "全力以赴";
-                statusBadge.className = "px-6 py-2 rounded-full text-base font-black tracking-widest uppercase bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 animate-pulse";
-                progressRing.setAttribute('stroke', '#10b981'); // Emerald
-
-                const ex = EXERCISES_DB[current.exerciseId];
-                document.getElementById('timer-exercise-name').innerText = ex.name;
-                document.getElementById('timer-exercise-desc').innerText = ex.desc;
-                document.getElementById('timer-round-info').innerText = `回合: ${current.round}/${current.totalRounds}`;
+                badge.innerText = "全力以赴";
+                badge.className = "px-6 py-2 rounded-full font-black bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 animate-pulse";
+                ring.setAttribute('stroke', '#10b981');
+                document.getElementById('timer-round-info').innerText = `回合: ${current.round}/${current.totalR}`;
                 
-                // 設定 YouTube 教學連結並顯示
-                if (ytLink) {
-                    const cleanName = ex.name.split(' (')[0];
-                    const ytQuery = encodeURIComponent('HIIT ' + cleanName + ' 教學');
-                    ytLink.href = `https://www.youtube.com/results?search_query=${ytQuery}`;
+                let cleanName = current.name.split(' (')[0];
+                nameEl.innerText = cleanName;
+                
+                if (current.isCustom) {
+                    descEl.innerText = "盡全力燃燒卡路里！";
+                    ytLink.classList.add('hidden');
+                    speak(`開始運動！`);
+                } else {
+                    const ex = EXERCISES_DB[current.exId];
+                    descEl.innerText = ex.desc;
+                    ytLink.href = `https://www.youtube.com/results?search_query=${encodeURIComponent('HIIT ' + cleanName + ' 教學')}`;
                     ytLink.classList.remove('hidden');
+                    
+                    // 顯示頭像圖片
+                    imgContainer.classList.remove('hidden');
+                    imgEl.src = ex.img;
+                    imgEl.onerror = () => { imgEl.classList.add('hidden'); emojiEl.classList.replace('hidden', 'flex'); emojiEl.innerText = ex.emoji; };
+                    
+                    speak(`開始：${cleanName}`);
                 }
+                playSound(1500, 0.2, 'square'); // 哨聲
 
-                // 尋找下一個非休息的運動名稱
-                let nextWork = "結束";
-                for (let i = currentIntervalIndex + 1; i < timeline.length; i++) {
-                    if (timeline[i].type === 'work') {
-                        nextWork = timeline[i].name;
-                        break;
-                    }
-                }
-                document.getElementById('timer-next-exercise').innerText = nextWork;
-                playWhistle(); // 開始哨聲
             } else if (current.type === 'rest') {
-                statusBadge.innerText = "調整呼吸";
-                statusBadge.className = "px-6 py-2 rounded-full text-base font-black tracking-widest uppercase bg-amber-500/20 text-amber-400 border border-amber-500/30";
-                progressRing.setAttribute('stroke', '#f59e0b'); // Amber
-
-                document.getElementById('timer-exercise-name').innerText = "休息一下";
-                document.getElementById('timer-exercise-desc').innerText = "站立微幅走動，切勿直接坐下或躺下。多補充一小口水。";
-                document.getElementById('timer-round-info').innerText = `回合: ${current.round}/${current.totalRounds}`;
-                if (ytLink) ytLink.classList.add('hidden');
-
-                // 尋找下一個要準備做的運動
-                let nextWork = "結束";
-                for (let i = currentIntervalIndex + 1; i < timeline.length; i++) {
-                    if (timeline[i].type === 'work') {
-                        nextWork = timeline[i].name;
-                        break;
-                    }
+                badge.innerText = "調整呼吸";
+                badge.className = "px-6 py-2 rounded-full font-black bg-amber-500/20 text-amber-400 border border-amber-500/30";
+                ring.setAttribute('stroke', '#f59e0b');
+                nameEl.innerText = "休息時間";
+                ytLink.classList.add('hidden');
+                
+                // 組裝包含「下一張預覽圖片」的超醒目提示
+                let nextVisualHtml = '';
+                if (nextEx) {
+                    nextVisualHtml = `
+                        <div class="flex justify-center mt-3">
+                            <div class="w-20 h-20 rounded-xl border-2 border-amber-500/50 bg-slate-800 overflow-hidden shadow-lg relative">
+                                <img src="${nextEx.img}" class="w-full h-full object-cover" onerror="this.classList.add('hidden'); this.nextElementSibling.classList.replace('hidden', 'flex');">
+                                <span class="absolute inset-0 hidden items-center justify-center text-4xl">${nextEx.emoji}</span>
+                            </div>
+                        </div>
+                    `;
                 }
-                document.getElementById('timer-next-exercise').innerText = nextWork;
-                playBeepHigh(); // 休息哨聲 / 嗶聲
+
+                descEl.innerHTML = `
+                    <div class="mt-2 bg-slate-950/80 border border-amber-500/50 rounded-2xl px-6 py-4 animate-pulse text-center w-full">
+                        <span class="block text-amber-500 font-bold mb-1">👉 即將進行</span>
+                        <span class="block text-3xl font-black text-white">${nextWorkName}</span>
+                        ${nextVisualHtml}
+                    </div>
+                `;
+                
+                speak(`休息一下。下一個動作是：${nextWorkName}`);
+                playBeepHigh();
             }
 
             updateIntervalDisplay(current.duration);
 
-            // 啟動 1 秒間隔的主計時循環
             clearInterval(timerInterval);
             timerInterval = setInterval(() => {
                 if (timerState === 'paused') return;
-
                 secondsLeftInInterval--;
                 elapsedTotalSeconds++;
-
                 updateIntervalDisplay(current.duration);
 
-                // 倒數嗶聲 (最後 3 秒)
-                if (secondsLeftInInterval > 0 && secondsLeftInInterval <= 3) {
-                    playBeepLow();
-                }
-
+                if (secondsLeftInInterval > 0 && secondsLeftInInterval <= 3) playBeepLow();
+                
                 if (secondsLeftInInterval <= 0) {
                     clearInterval(timerInterval);
                     currentIntervalIndex++;
@@ -1022,96 +874,80 @@
             }, 1000);
         }
 
-        // 更新介面數值與進度環
-        function updateIntervalDisplay(maxDuration) {
-            // 秒數文字
-            const secDisplay = secondsLeftInInterval < 10 ? `0${secondsLeftInInterval}` : secondsLeftInInterval;
-            document.getElementById('timer-seconds').innerText = secDisplay;
-
-            // 進度環 (Dasharray = 816.8)
-            const ring = document.getElementById('timer-progress-ring');
-            const percent = (secondsLeftInInterval / maxDuration);
-            const offset = 816.8 * (1 - percent);
-            ring.style.strokeDashoffset = offset;
-
-            // 總剩餘時間
-            const timeLeft = totalWorkoutSeconds - elapsedTotalSeconds;
-            const min = Math.floor(timeLeft / 60);
-            const sec = timeLeft % 60;
-            document.getElementById('timer-total-left').innerText = `總剩餘: ${min < 10 ? '0' + min : min}:${sec < 10 ? '0' + sec : sec}`;
+        function updateIntervalDisplay(maxD) {
+            document.getElementById('timer-seconds').innerText = secondsLeftInInterval < 10 ? `0${secondsLeftInInterval}` : secondsLeftInInterval;
+            const percent = secondsLeftInInterval / maxD;
+            document.getElementById('timer-progress-ring').style.strokeDashoffset = 816.8 * (1 - percent);
+            
+            const tl = totalWorkoutSeconds - elapsedTotalSeconds;
+            const m = Math.floor(tl/60), s = tl%60;
+            document.getElementById('timer-total-left').innerText = `總剩餘: ${m<10?'0'+m:m}:${s<10?'0'+s:s}`;
         }
 
-        // 暫停與繼續
         function togglePause() {
-            const btnPause = document.getElementById('btn-timer-pause');
-            const svgPause = document.getElementById('svg-pause');
-            const svgResume = document.getElementById('svg-resume');
-
-            if (timerState === 'paused') {
-                timerState = 'running';
-                svgPause.classList.remove('hidden');
-                svgResume.classList.add('hidden');
-            } else {
-                timerState = 'paused';
-                svgPause.classList.add('hidden');
-                svgResume.classList.remove('hidden');
-            }
+            timerState = timerState === 'paused' ? 'running' : 'paused';
+            document.getElementById('svg-pause').classList.toggle('hidden');
+            document.getElementById('svg-resume').classList.toggle('hidden');
         }
 
-        // 跳過此單元
+        function pauseForVideo() {
+            if (timerState !== 'paused' && timerState !== 'idle') togglePause();
+        }
+
         function skipInterval() {
             clearInterval(timerInterval);
-            // 累加已消耗時間
             elapsedTotalSeconds += secondsLeftInInterval;
             currentIntervalIndex++;
             startInterval();
         }
 
-        // 退出運動
         function quitWorkout() {
             if (confirm("運動尚未完成，確定要退出嗎？")) {
                 clearInterval(timerInterval);
                 document.getElementById('timer-overlay').classList.add('hidden');
-                timerState = 'idle';
+                window.speechSynthesis.cancel();
             }
         }
 
-        // 順利完成全部 HIIT
-        function completeWorkout() {
+        // --- ✨ Gemini AI 專屬結語生成 ---
+        async function completeWorkout() {
             clearInterval(timerInterval);
             document.getElementById('timer-overlay').classList.add('hidden');
+            window.speechSynthesis.cancel();
+            speak("恭喜！訓練完成！");
             
-            // 計算完成打卡 Key
-            const key = `W${activeWorkout.week}D${activeWorkout.day}`;
-            if (!completedWorkouts.includes(key)) {
-                completedWorkouts.push(key);
-                localStorage.setItem('habithiit_completed', JSON.stringify(completedWorkouts));
+            const workoutTitle = activeWorkout?.title || '自訂訓練';
+            
+            if (activeWorkout && !activeWorkout.isCustom) {
+                const key = `W${activeWorkout.week}D${activeWorkout.day}`;
+                if (!completedWorkouts.includes(key)) {
+                    completedWorkouts.push(key);
+                    localStorage.setItem('habithiit_completed', JSON.stringify(completedWorkouts));
+                }
             }
-
-            // 更新數據與圖表
-            updateStats();
-            updateRecommendation();
-            renderProgramDays();
-
-            // 彈出成功 Modal
-            const totalActiveSec = (activeWorkout.workSec + activeWorkout.restSec) * activeWorkout.exercises.length * activeWorkout.rounds;
-            const min = Math.floor(totalActiveSec / 60);
-            const sec = totalActiveSec % 60;
+            updateStats(); updateRecommendation(); renderProgramDays();
             
-            document.getElementById('completed-duration').innerText = `${min}分${sec}秒`;
+            // 顯示 Modal (結語呈現 Loading 狀態)
+            const cheerMessageEl = document.getElementById('ai-cheer-message');
+            cheerMessageEl.classList.add('ai-shimmer', 'text-transparent');
+            cheerMessageEl.classList.remove('text-slate-200');
+            cheerMessageEl.innerText = "正在生成...";
             
-            // 計算一個好玩的微進步幅度
-            const intensityIncrease = ((activeWorkout.week - 1) * 4 + activeWorkout.day) * 1.5;
-            document.getElementById('completed-progression').innerText = `+${intensityIncrease.toFixed(1)}%`;
-
-            document.getElementById('completion-text').innerText = `你已經順利解鎖了「${activeWorkout.title}」！大腦與核心今天都獲得了超棒的成長。`;
             document.getElementById('completion-modal').classList.remove('hidden');
+            setTimeout(() => playSound(1046.50, 0.6), 100);
 
-            // 燃放多巴胺慶賀音效
-            setTimeout(() => playSound(523.25, 0.25), 0); // C5
-            setTimeout(() => playSound(659.25, 0.25), 150); // E5
-            setTimeout(() => playSound(783.99, 0.25), 300); // G5
-            setTimeout(() => playSound(1046.50, 0.6), 450); // C6
+            // 呼叫 Gemini 產生專屬結語
+            const prompt = `你是一位熱血的 AI 健身教練。使用者剛剛完成了一個名為「${workoutTitle}」的 HIIT 運動。請用繁體中文寫一句簡短、充滿活力與幽默感的恭喜話語來鼓勵他，字數限制在 40 字以內，一定要包含 1~2 個 Emoji。直接給出句子即可，不需要任何開場白。`;
+            
+            const aiCheer = await fetchGeminiText(prompt);
+            
+            // 呈現生成的結語
+            cheerMessageEl.classList.remove('ai-shimmer', 'text-transparent');
+            cheerMessageEl.classList.add('text-slate-200');
+            cheerMessageEl.innerText = aiCheer;
+            
+            // 也可以用語音把這句加油唸出來
+            speak(aiCheer);
         }
 
         function closeCompletionModal() {
@@ -1120,12 +956,10 @@
         }
 
         function resetProgress() {
-            if (confirm("確定要重置所有訓練記錄與打卡歷史嗎？這將無法恢復。")) {
+            if (confirm("確定要重置所有記錄嗎？")) {
                 completedWorkouts = [];
                 localStorage.removeItem('habithiit_completed');
-                updateStats();
-                updateRecommendation();
-                renderProgramDays();
+                updateStats(); updateRecommendation(); renderProgramDays();
             }
         }
     </script>
